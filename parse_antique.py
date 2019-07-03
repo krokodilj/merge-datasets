@@ -4,14 +4,23 @@ from util import average_tokens
 
 
 PATH = "./Antique/antique-collection.txt"
+TRAIN_QUERIES_PATH = "./Antique/antique-train-queries.txt"
+TEST_QUERIES_PATH = "./Antique/antique-test-queries.txt"
 TRAIN_QREL_PATH = "./Antique/antique-train.qrelnew" # Formatted .qrels
 TEST_QREL_PATH = "./Antique/antique-test.qrelnew"   # Formatted .qrels
 
 data_columns = ['answer_id', 'answer_text']
+query_columns = ['question_id', 'question_text']
 qrel_columns = ['question_id', 'something', 'answer_id', 'relevance']
 
 data = pd.read_csv(PATH, sep="\t", header=None, keep_default_na=False)
 data.columns = data_columns
+
+train_queries = pd.read_csv(TRAIN_QUERIES_PATH, sep='\t', header=None, keep_default_na=False)
+train_queries.columns = query_columns
+
+test_queries = pd.read_csv(TEST_QUERIES_PATH, sep='\t', header=None, keep_default_na=False)
+test_queries.columns = query_columns
 
 train_qrel = pd.read_csv(TRAIN_QREL_PATH, sep="\t", header=None, keep_default_na=False)
 train_qrel.columns = qrel_columns
@@ -72,12 +81,23 @@ def find_relevant_questions(answer_ids, q_rel):
 
 # data = data[:4000]
 
-data['relevant_question'] = find_relevant_questions(data['answer_id'], qrel)
+def label_paragraphs():
 
-data = data[ ['answer_id', 'relevant_question', 'answer_text'] ]
+    data['relevant_question'] = find_relevant_questions(data['answer_id'], qrel)
 
-data.to_csv('antique_labeled.txt', sep='\t', index=False, na_rep='NaN')
+    data = data[ ['answer_id', 'relevant_question', 'answer_text'] ]
 
-average_tokens(data['answer_text'])
+    data.to_csv('antique_labeled.txt', sep='\t', index=False, na_rep='NaN')
 
+    # average_tokens(data['answer_text'])
+
+
+def parse_questions(q_train, q_test):
+
+    questions = pd.concat([q_train, q_test])
+
+    questions.to_csv('antique_q_parsed.txt', sep="\t", index=False, na_rep="Nan")
+
+
+parse_questions(train_queries, test_queries)
 

@@ -63,12 +63,23 @@ def find_relevant_question(answers, questions):
 
     return results
 
+def label_paragraphs():
 
-flat_passages = flatten_passages(passages_json)
+    flat_passages = flatten_passages(passages_json)
 
-flat_passages['relevant_question'] = find_relevant_question(
-    flat_passages['answer_id'], queries)
+    flat_passages['relevant_question'] = find_relevant_question(
+        flat_passages['answer_id'], queries)
 
-flat_passages = flat_passages[ ['answer_id', 'relevant_question', 'answer_text'] ]
+    flat_passages = flat_passages[ ['answer_id', 'relevant_question', 'answer_text'] ]
 
-flat_passages.to_csv('wiki_labeled.txt', sep='\t', index=False, na_rep='NaN')
+    flat_passages.to_csv('wiki_labeled.txt', sep='\t', index=False, na_rep='NaN')
+
+
+def parse_questions(queries):
+    q = queries[['QID', 'Question']]
+
+    q.columns = ['question_id', 'question_text']
+
+    q.to_csv('wiki_q_parsed.txt', sep='\t', index=False, na_rep='Nan')
+
+parse_questions(queries)
